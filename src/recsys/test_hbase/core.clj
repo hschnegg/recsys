@@ -186,3 +186,22 @@
         ;; Write incremented (or new) value to CT in HBase
         ((fn [new-value] (hb/with-table [ct (hb/table "context-tree")]
                            (hb/put ct parent :value [:child page-kw new-value])))))))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

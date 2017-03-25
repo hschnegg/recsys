@@ -1,0 +1,6 @@
+{:datastore
+ {:context-tree
+  {:table "context-tree"
+   :children-cf :child}}
+ :context-tree
+ {:hash-page-name false}}
