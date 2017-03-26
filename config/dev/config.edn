@@ -3,4 +3,5 @@
   {:table "context-tree"
    :children-cf :child}}
  :context-tree
- {:hash-page-name false}}
+ {:journey-separator "|"
+  :hash-page-name? false}}
