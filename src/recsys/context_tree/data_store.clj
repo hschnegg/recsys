@@ -1,4 +1,8 @@
-(ns recsys.context-tree.data-store
+(ns ^{:doc "Handle access to the HBase data store"
+      :author "Herve Schnegg"}
+
+    recsys.context-tree.data-store
+
   (:require [config.core :refer [env]]
             [clojure-hbase.core :as hb]
             [clojure-hbase.util :as hb-util]
