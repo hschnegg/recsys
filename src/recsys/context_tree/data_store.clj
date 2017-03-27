@@ -12,7 +12,7 @@
 ;; create 'context-tree', 'child'
 
 
-(defn add-journey [parent page]
+(defn store-journey [parent page]
   "Update the visit counter for an existing journey or create a new journey in the CT"
   (let [page-kw (keyword page)]
     (-> page-kw

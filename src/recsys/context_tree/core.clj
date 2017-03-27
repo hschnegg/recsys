@@ -19,3 +19,13 @@
         (#(hash-map
            :page (first %1)
            :parent (str/join (:journey-separator (:context-tree env)) (rest %1)))))))
+
+
+
+(defn add-journey [journey]
+  "Add a journey stored in a string into the CT data store"
+  (let [processed-journey (process-journey journey)
+        page (:page processed-journey)
+        parent (:parent processed-journey)]
+    (when (not= parent ""
+                (ds/store-journey parent page)))))
