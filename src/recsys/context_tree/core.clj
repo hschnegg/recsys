@@ -13,7 +13,7 @@
   (let [pages (str/split journey (re-pattern (str "\\" (:journey-separator (:context-tree env)))))]
     (-> pages
         (#(if (:hash-page-name? (:context-tree env))
-            (map hash %1)
+            (map hash %1) ;; TODO: should no hash last page
             %1))
         (reverse)
         (#(hash-map
@@ -21,11 +21,17 @@
            :parent (str/join (:journey-separator (:context-tree env)) (rest %1)))))))
 
 
-
 (defn add-journey [journey]
   "Add a journey stored in a string into the CT data store"
   (let [processed-journey (process-journey journey)
-        page (:page processed-journey)
+        page (:page processed-journey) ;; TODO: should not be hashed
         parent (:parent processed-journey)]
-    (when (not= parent ""
-                (ds/store-journey parent page)))))
+    (when (not= parent "")
+                (ds/store-journey parent page))))
+
+
+(defn get-parent-journeys [journey]
+  "Retrieve all journeys with the same last page"
+  (let [processed-journey (process-journey journey)
+        page (:page processed-journey)] ;; TODO: hashed
+    (ds/retrieve-matching-journeys page)))

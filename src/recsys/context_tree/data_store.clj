@@ -44,7 +44,7 @@
                                   :map-qualifier #(keyword (hb-util/as-str %))
                                   :map-value #(hb-util/as-str %) str)))
              (hb/with-scanner [ct (hb/table (:table (:context-tree (:datastore env))))]
-               (hb/scan ct :start-row last-page :stop-row (str last-page "zzz"))))))
+               (hb/scan ct :start-row last-page :stop-row (str last-page (:journey-separator (:context-tree env)) "z"))))))
   
   
 
