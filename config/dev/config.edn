@@ -3,5 +3,7 @@
   {:table "context-tree"
    :children-cf :child}}
  :context-tree
- {:journey-separator "|"
+ {:alpha 0.5
+  :suffix-depth 99
+  :journey-separator "|"
   :hash-page-name? false}}

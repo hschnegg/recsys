@@ -42,5 +42,22 @@
     (ds/retrieve-matching-journeys last-page)))
 
 
+(defn suffix-weights [journey-length]
+  "Calculate the weighting to apply to recs generated from different suffixes"
+  (let [powers (range journey-length)
+        alpha-powered (map #(Math/pow (:alpha (:context-tree env)) %)  powers)
+        weight-full-journey (/ 1 (reduce + alpha-powered))]
+    (map #(* % weight-full-journey) alpha-powered)))
+
+
+(defn build-all-suffixes
+  "Derive all the journey's suffixes"
+  ([reversed-journey-vector]
+   (all-suffixes reversed-journey-vector []))
+  ([reversed-journey-vector suffixes]
+   (if (empty? reversed-journey-vector)
+     suffixes
+     (recur (pop reversed-journey-vector) (conj suffixes reversed-journey-vector)))))        
+
 
 
