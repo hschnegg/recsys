@@ -35,17 +35,22 @@
       (ds/store-journey (vector-to-string parent-vector) page))))
 
 
-(defn retrieve-journey-descendants [journey-string]
+(defn retrieve-journey-descendants-0 [journey-string]
   "Retrieve all journeys with the same last page"
   (let [journey-vector (string-to-vector journey-string)
         last-page (last journey-vector)]    
     (ds/retrieve-matching-journeys last-page)))
 
 
+(defn retrieve-journey-family [last-page]
+  "Retrieve all journeys with the same last page"
+    (ds/retrieve-matching-journeys last-page))
+
+
 (defn suffix-weights [journey-length]
   "Calculate the weighting to apply to recs generated from different suffixes"
   (let [powers (range journey-length)
-        alpha-powered (map #(Math/pow (:alpha (:context-tree env)) %)  powers)
+        alpha-powered (map #(Math/pow (:alpha (:context-tree env)) %) powers)
         weight-full-journey (/ 1 (reduce + alpha-powered))]
     (map #(* % weight-full-journey) alpha-powered)))
 
@@ -53,11 +58,19 @@
 (defn build-all-suffixes
   "Derive all the journey's suffixes"
   ([reversed-journey-vector]
-   (all-suffixes reversed-journey-vector []))
+   (build-all-suffixes reversed-journey-vector []))
   ([reversed-journey-vector suffixes]
    (if (empty? reversed-journey-vector)
      suffixes
      (recur (pop reversed-journey-vector) (conj suffixes reversed-journey-vector)))))        
 
 
+(def family (retrieve-journey-family "c"))
+(def suffixes (map vector-to-string (build-all-suffixes ["c" "b" "a"])))
+(def k (keys family))
+(def s "c")
 
+
+(map #(str/starts-with? % s)c k) ;; key starts with s? 
+(map (fn [k1] (reduce (fn [e1 e2] (or e1 e2)) (map (fn [s] (= k1 s)) suffixes))) k) ;; key belongs to suffix
+(map #(= s %) k) ;; key = s?
