@@ -35,13 +35,6 @@
       (ds/store-journey (vector-to-string parent-vector) page))))
 
 
-(defn retrieve-journey-descendants-0 [journey-string]
-  "Retrieve all journeys with the same last page"
-  (let [journey-vector (string-to-vector journey-string)
-        last-page (last journey-vector)]    
-    (ds/retrieve-matching-journeys last-page)))
-
-
 (defn retrieve-subtree [last-page]
   "Retrieve all journeys with the same last page"
     (ds/retrieve-matching-journeys last-page))
@@ -65,41 +58,35 @@
      (recur (drop-last reversed-journey-vector) (conj suffixes (vector-to-string reversed-journey-vector))))))        
 
 
-(def subtree (retrieve-subtree "c"))
-(def suffixes (map vector-to-string (build-all-suffixes ["c" "b" "a"])))
-(def weights (suffix-weights (count suffixes)))
-(def weighted-suffixes (zipmap suffixes weights))
-(def subtree-parents (keys subtree))
-
 (defn get-matching-journeys [suffix subtree-parents]
+  "Get tree journeys starting by suffix"
   (filter (fn [parent] (str/starts-with? parent suffix)) subtree-parents))
-
-(def matching-parents (get-matching-journeys "c|b" subtree-parents))
 
 
 (defn abs-to-perc [vector]
+  "Transform a vector of values into percentages"
   (map #(/ % (reduce + vector)) vector))
 
 
-(defn get-pages-visits [parent tree]
+(defn retrieve-pages-visits [parent tree]
+  "Retrieve the children pages and counts from tree"
   (let [pages-kw (keys (:child (get tree parent)))
         pages (map name pages-kw)
         visits-str (vals (:child (get tree parent)))
-        ;; visits (map #(* % weight) (abs-to-perc (map #(Integer. %) visits-str)))]
         visits (map #(Integer. %) visits-str)]
     (zipmap pages visits)))
         
 
 (defn get-suffix-children [suffix weight tree]
+  "Retrieve all the matching journeys (pages and visits) for a given suffix"
   (let [children (->> [suffix]
                       ;; extract matching journeys
                       (mapcat #(get-matching-journeys % (keys tree)))
-                      ;;(fn [s] (filter (fn [parent] (str/starts-with? parent [s])) tree))
                       (distinct)
                       (sort-by count)
                       (reverse)
                       ;; retrieve children and visits
-                      (map #(get-pages-visits % tree))
+                      (map #(retrieve-pages-visits % tree))
                       ;; aggregate resulting hashmap
                       (apply merge-with +))
         pages (keys children)
@@ -108,6 +95,7 @@
 
 
 (defn iterate-over-suffixes
+  "Retrieve recommendations for provided suffixes"
   ([weighted-suffixes tree]
    (iterate-over-suffixes weighted-suffixes tree {}))
   ([weighted-suffixes tree recs]
@@ -119,13 +107,12 @@
        (recur (rest weighted-suffixes) (dissoc tree first-suffix) (merge-with + recs (get-suffix-children first-suffix weight tree)))))))
 
 
-
 (defn retrieve-recommendations [journey-string]
+  "Prepare journey and call recommendations"
   (let [journey-vector (string-to-vector journey-string)
-        reversed-journey-vector (reverse journey-vector)
+        reversed-journey-vector (process-parent journey-vector)
         last-page (first reversed-journey-vector)
         subtree (retrieve-subtree last-page)
         suffixes (build-all-suffixes reversed-journey-vector)
         weights (suffix-weights (count suffixes))]
-    (prn suffixes)
     (iterate-over-suffixes (zipmap suffixes weights) subtree)))
