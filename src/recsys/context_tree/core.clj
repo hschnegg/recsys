@@ -103,16 +103,18 @@
          first-suffix (first first-weighted-suffix)
          weight (last first-weighted-suffix)]
      (if (empty? first-suffix)
-       (reverse (sort-by val recs))
+       recs
+       ;;(reverse (sort-by val recs))
        (recur (rest weighted-suffixes) (dissoc tree first-suffix) (merge-with + recs (get-suffix-children first-suffix weight tree)))))))
 
 
-(defn retrieve-recommendations [journey-string]
+(defn retrieve-recommendations [journey-string n]
   "Prepare journey and call recommendations"
   (let [journey-vector (string-to-vector journey-string)
         reversed-journey-vector (process-parent journey-vector)
         last-page (first reversed-journey-vector)
         subtree (retrieve-subtree last-page)
         suffixes (build-all-suffixes reversed-journey-vector)
-        weights (suffix-weights (count suffixes))]
-    (iterate-over-suffixes (zipmap suffixes weights) subtree)))
+        weights (suffix-weights (count suffixes))
+        recs (iterate-over-suffixes (zipmap suffixes weights) subtree)]
+    (into (sorted-map) (take n (into (sorted-map) recs)))))
